@@ -1,229 +1,193 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace NewAddressBook
+namespace CompleteAddressBook
 {
-    internal class AddressBook
-    {
-        //Creating Object Of Class
-        Contact tempContact = new Contact();
+	public class AddressBookMain
+	{
+		public static Dictionary<string, MultipleAddressBook> addressBookDict = new Dictionary<string, MultipleAddressBook>();
+		public static MultipleAddressBook multiadd = new MultipleAddressBook();
+		public static void Main(string[] args)
+		{
 
-        //Creating Dictionary
-        public Dictionary<string, Contact> contacts;
+			bool flag = true;
 
-        //Initializing Dictionary
-        public AddressBook()
-        {
-            contacts = new Dictionary<string, Contact>();
-        }
+			while (flag)
+			{
+				Console.WriteLine("******WELCOME TO ADDRESS BOOK******");
+				Console.WriteLine("1. Create_AddressBooks \n2. Open_AddressBooks \n3. DeletAddressBook \n4. Exit");
+				int choice = Convert.ToInt32(Console.ReadLine());
+				int size = addressBookDict.Count;
+				switch (choice)
+				{
+					case 1:
 
-        public void ContactMenu()
-        {
-            bool flag = false;
-            do
-            {
-                Console.WriteLine("1. Create contacts \n2. Add contact \n3. Edit contact \n4. Delete Contact \n5. Add Multiple Contacts \n6.Display contacts in Addressbook \n7.Search using filter \n8. Exit");
-                Console.Write("\nEnter Number to Execute the Address book Program : ");
-                int option = Convert.ToInt32(Console.ReadLine());
+						Console.Write("Enter AddressBook Name : ");
+						string book = Console.ReadLine();
+						bool check = DuplicatAddress(book);
+						if (check)
+						{
+							Console.Write("Enter AddressBook Name again : ");
+							book = Console.ReadLine();
+						}
+						MultipleAddressBook admain = new MultipleAddressBook();
+						addressBookDict.Add(book, admain);
+						Console.Clear();
+						Console.WriteLine("AddressBook_Created successfully...");
+						break;
+					case 2:
+						Console.WriteLine($"You have {size} AddressBook.");
 
-                switch (option)
-                {
-                    case 1:
-                        Console.WriteLine("Creating A New Contact");
-                        CreateContact();
-                        tempContact.Display();
-                        break;
+						foreach (var address in addressBookDict.Keys)
+						{
+							Console.WriteLine(address);
+						}
+						Console.Write("Enter Address_BookName : ");
+						string bookname = Console.ReadLine();
+						int ch = 0;
+						foreach (var address in addressBookDict)
+						{
+							ch++;
+							if (addressBookDict.ContainsKey(bookname))
+							{
+								Console.Clear();
+								Console.WriteLine("Opened Address_Book :-->" + bookname);
+								MainMenu(bookname);
+							}
+							else if (size == ch)
+							{
+								Console.Clear();
+								Console.WriteLine("AddressBook not present!!!!!");
+							}
+						}
+						break;
+					case 3:
+						Console.WriteLine($"You have {size} AddressBook.");
+						foreach (var address in addressBookDict)
+						{
+							Console.WriteLine(address.Key);
+						}
+						Console.Write("Enter Address_BookName  : ");
+						string name = Console.ReadLine();
 
-                    case 2:
-                        Console.WriteLine("Adding A New Contact");
-                        AddContacts();
-                        Console.WriteLine("New Contact:");
-                        tempContact.Display();
-                        Console.WriteLine();
-                        break;
+						int signal = 0;
+						Console.Clear();
+						foreach (var address in addressBookDict)
+						{
+							signal++;
+							if (addressBookDict.Remove(name))
+							{
+								Console.Clear();
+								Console.WriteLine($"Address_Book {name} Deleted...");
+								break;
+							}
+							else if (size == signal)
+							{
+								Console.Clear();
+								Console.WriteLine("AddressBook not present!!!!!");
+							}
+						}
+						break;
+					case 4:
+						flag = false;
+						break;
+				}
+			}
+		}
+		public static bool DuplicatAddress(string bookName)
+		{
+			bool check = false;
+			foreach (var address in addressBookDict)
+			{
 
-                    case 3:
-                        Console.WriteLine("Editing Existing Contact");
-                        EditContact();
-                        Console.WriteLine();
-                        break;
+				if (addressBookDict.ContainsKey(bookName))
+				{
+					check = true;
+					Console.Clear();
+					Console.WriteLine($"AddressBook-> {bookName} <-alerady presented pls Enter Diff. Name");
+					break;
+				}
+			}
+			return check;
+		}
+		public static void addUser(MultipleAddressBook MultAddObj)
+		{
+			Console.Write("Enter FirstName: ");
+			string firstName = Console.ReadLine();
+			Console.Write("Enter LastName: ");
+			string lastName = Console.ReadLine();
+			Console.Write("Enter Address : ");
+			string address = Console.ReadLine();
+			Console.Write("Enter City : ");
+			string city = Console.ReadLine();
+			Console.Write("Enter State : ");
+			string state = Console.ReadLine();
+			Console.Write("Enter zip : ");
+			string zip = Console.ReadLine();
+			Console.Write("Enter Contact No: ");
+			string contact = Console.ReadLine();
+			Console.Write("Enter Email: ");
+			string email = Console.ReadLine();
+			MultAddObj.AddContact(firstName, lastName, address, city, state, zip, contact, email);
 
-                    case 4:
-                        Console.WriteLine("Deleting Existing Contact");
-                        DeleteContact();
-                        Console.WriteLine();
-                        break;
+		}
+		public static void MainMenu(string bookname)
+		{
 
+			bool flag = true;
+			while (flag)
+			{
+				Console.WriteLine("******WELCOME TO ADDRESS BOOK******");
+				Console.WriteLine("1.Add_Contact \n2.Display_Contact \n3.Delet_Contact \n4.Update_Contact \n5.Serch_FromAllContact \n6.Count_Contacts\n7.Exit");
+				Console.WriteLine("Enter Your Choice:");
+				int input = Convert.ToInt32(Console.ReadLine());
+				switch (input)
+				{
+					case 1:
+						Console.Clear();
+						addUser(addressBookDict[bookname]);
+						Console.WriteLine("Details Added Successfully. \n");
+						break;
+					case 2:
+						Console.Clear();
+						addressBookDict[bookname].Display();
+						break;
+					case 3:
+						Console.Write("Enter FirstName U want to Delet : ");
+						string deletName = Console.ReadLine();
+						addressBookDict[bookname].DeletContact(deletName);
+						break;
+					case 4:
+						Console.WriteLine("Enter FirstName U want To Update");
+						string fname = Console.ReadLine();
+						addressBookDict[bookname].EditContact(fname);
+						break;
+					case 5:
+						Console.Write("Enter City Or State name U want To Serch : ");
+						string place = Console.ReadLine();
+						foreach (var addbook in addressBookDict.Keys)
+						{
+							addressBookDict[addbook].SerchContact(place);
+						}
+						break;
+					case 6:
+						Console.Write("Enter City or State want to Count : ");
+						string countplace = Console.ReadLine();
+						foreach (var addbook in addressBookDict.Keys)
+						{
+							Console.WriteLine("Contacts From AddressBook : " + addbook);
+							addressBookDict[addbook].CountContact(countplace);
+						}
+						break;
+					case 7:
+						flag = false;
+						break;
+					default:
+						Console.WriteLine("Invalid option ???");
+						break;
+				}
+			}
 
-                    case 5:
-                        Console.WriteLine("Adding Multiple Contacts");
-                        AddMultiple();
-                        Console.WriteLine();
-                        break;
-
-                    case 6:
-                        Console.WriteLine("Displaying Contacts");
-                        foreach (Contact contact in contacts.Values)
-                        {
-                            tempContact.Display();
-                        }
-                        break;
-
-                    case 7:
-                        DisplayFilteredList();
-                        break;
-
-                    case 8:
-                        Console.WriteLine("If You Want To Exit Then Press Enter");
-                        flag = true;
-                        Console.ReadKey();
-                        break;
-
-                    default:
-                        Console.WriteLine("Invalid");
-                        break;
-                }
-            } while (flag == false);
-        }
-
-        //Method Used To Create Contacts
-        public void CreateContact()
-        {
-            tempContact.GetUserInfo();
-            string name = tempContact.GetName();
-            if (contacts.ContainsKey(name) is false)
-            {
-                contacts.Add(name, tempContact);
-                Console.WriteLine("Contact created successfully..");
-            }
-            else
-            {
-                Console.WriteLine("erorr");
-            }
-        }
-
-        //Method Used To Add Contacts
-        public void AddContacts()
-        {
-            tempContact.GetUserInfo();
-            //UC-7 Ensuring No Duplicates
-            try
-            {
-                if (contacts.Any(e => e.Value.Equals(tempContact)) is false)
-                {
-                    contacts.Add(tempContact.GetName(), tempContact);
-                }
-            }
-            catch (ArgumentException)
-            {
-                Console.WriteLine("Contact already exist\n PleaseCheck The Address Book ...");
-            }
-
-        }
-
-        //Method Used To Edit Contacts
-        public void EditContact()
-        {
-            Console.WriteLine("Enter name of contact to edit: ");
-            string name = Console.ReadLine();
-            if (contacts.ContainsKey(name) is true)
-            {
-                Contact tempContact = new Contact();
-                tempContact.GetUserInfo();
-                string editName = tempContact.GetName();
-                if (contacts.ContainsKey(editName) is false || editName == name)
-                {
-                    contacts.Remove(name);
-                    contacts.Add(editName, tempContact);
-                    Console.WriteLine("Successfully Edited And Saved!!!");
-                    tempContact.Display();
-                }
-                else
-                    Console.WriteLine("Edited name is invalid");
-            }
-            else
-                Console.WriteLine("Name does not exist");
-        }
-
-
-
-        //Method Used To Delete Contact
-        public void DeleteContact()
-        {
-            Console.WriteLine("Enter name of contact to delete: ");
-            string name = Console.ReadLine();
-            if (contacts.ContainsKey(name) is true)
-            {
-                contacts.Remove(name);
-                Console.WriteLine("Successfully Deleted!!!");
-            }
-            else
-                Console.WriteLine("Name does not exist");
-        }
-
-        //Creating method to add multiple contacts
-        public void AddMultiple()
-        {
-            Console.WriteLine("Enter no of contacts to add");
-            int count = Convert.ToInt32(Console.ReadLine());
-            for (int i = 0; i < count; i++)
-            {
-                CreateContact();
-            }
-            tempContact.Display();
-            Console.WriteLine("Successfully Added New Contacts");
-
-        }
-
-        //Filtered list for city or
-        public void DisplayFilteredList()
-        {
-            int option = 0;
-
-            List<Contact> filterredList = new List<Contact>();
-            Console.WriteLine("Filter Contact list in this AddressBook:");
-            Console.WriteLine("1. Filter by state");
-            Console.WriteLine("2. Filter by city");
-            Console.Write("Option: ");
-            switch (option)
-            {
-                case 1:
-                    Console.Write("Enter state: ");
-                    string state = Console.ReadLine();
-                    Console.WriteLine($"List of contacts in {state}");
-                    StateFilter(state, filterredList);
-                    break;
-                case 2:
-                    Console.WriteLine("Enter City: ");
-                    string city = Console.ReadLine();
-                    Console.WriteLine($"List of contacts in {city}");
-                    CityFilter(city, filterredList);
-                    break;
-                default:
-                    Console.WriteLine("Error!!!");
-                    break;
-            }
-        }
-
-        //Creating method to filter by city
-        public void CityFilter(string city, List<Contact> filteredList)
-        {
-            Dictionary<string, Contact>.Enumerator enumerator = contacts.GetEnumerator();
-            while (enumerator.MoveNext())
-                if (enumerator.Current.Value.City == city)
-                    filteredList.Add(enumerator.Current.Value);
-        }
-
-        //Creating method to filter by state
-        public void StateFilter(string state, List<Contact> filteredList)
-        {
-            Dictionary<string, Contact>.Enumerator enumerator = contacts.GetEnumerator();
-            while (enumerator.MoveNext())
-                if (enumerator.Current.Value.State == state)
-                    filteredList.Add(enumerator.Current.Value);
-        }
-    }
+		}
+	}
 }
