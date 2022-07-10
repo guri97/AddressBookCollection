@@ -1,35 +1,47 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
-using System.Text;
-
-namespace CompleteAddressBook
+using System.Linq;
+using System.Text.RegularExpressions;
+namespace AddressBookSystem
 {
-	public class ContactPerson
-	{
-		public String firstName;
-		public String lastName;
-		public String address;
-		public String city;
-		public String state;
-		public String zip;
-		public String contact;
-		public String email;
+    public class ContactDetails
+    {
+        public string firstName { get; set; }
+        public string lastName { get; set; }
+        public string address { get; set; }
+        public string city { get; set; }
+        public string state { get; set; }
+        public int zip { get; set; }
+        public long phoneNumber { get; set; }
+        public string email { get; set; }
+        public string addressBook { get; set; }
 
 
-		public ContactPerson(String firstName, String lastName, String address, String city, String state, String zip, String contact, String email)
-		{
-			this.firstName = firstName;
-			this.lastName = lastName;
-			this.address = address;
-			this.city = city;
-			this.state = state;
-			this.zip = zip;
-			this.contact = contact;
-			this.email = email;
-		}
-		public void print()
-		{
-			Console.WriteLine(firstName + " \t  " + lastName + " \t  " + address + " \t  " + city + " \t  " + state + " \t " + zip + "\t " + contact + " \t  " + email);
-		}
-	}
+        public ContactDetails()
+        {
+        }
+
+        public ContactDetails(string addressBook, string firstName, string lastName, string address, string city, string state, int zip, long phoneNumber, string email)
+        {
+            this.firstName = firstName;
+            this.lastName = lastName;
+            this.address = address;
+            this.city = city;
+            this.state = state;
+            this.zip = zip;
+            this.phoneNumber = phoneNumber;
+            this.email = email;
+            this.addressBook = addressBook;
+
+        }
+        public string toString()
+        {
+            return "Address Book: " + addressBook + "\n"
+                                   + "" + " Details of " + firstName + " " + lastName + " are: " + " Address: " + address + "  City: " + city + "\n"
+                                    + "                               " + " State: " + state + "  Zip: " + zip + "\n"
+                                    + "                               " + " PhoneNumber: " + phoneNumber + "\n"
+                                    + "                               " + " Email: " + email;
+
+        }
+    }
 }

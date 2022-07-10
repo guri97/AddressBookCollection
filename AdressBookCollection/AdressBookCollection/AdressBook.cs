@@ -1,283 +1,255 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.IO;
+using CsvHelper;
+using System.Globalization;
+using Newtonsoft.Json;
 
-namespace CompleteAddressBook
+namespace AddressBookSystem
 {
-	class AddressBookMain
-	{
-		public static Dictionary<string, MultipleAddressBook> addressBookDict = new Dictionary<string, MultipleAddressBook>();
-		public static MultipleAddressBook multiadd = new MultipleAddressBook();
-		public static void Main(string[] args)
-		{
+    class Addressbook
+    {
 
-			bool flag = true;
+        List<ContactDetails> contactDetailsList;
+        private Dictionary<string, ContactDetails> contactDetailsMap;
+        private Dictionary<string, Dictionary<string, ContactDetails>> multipleAddressBookMap;
+        private List<ContactDetails> sortedBookList;
 
-			while (flag)
-			{
-				Console.WriteLine("******WELCOME TO ADDRESS BOOK******");
-				Console.WriteLine("1.Create_AddressBooks \n2.Open_AddressBooks \n3.Count_TotalContacts \n4.Serch_FromAllContact \n5.DeletAddressBook \n6.StoreContactsIn_TextFile \n7.ReadContactsFrom_TextFile \n8.StoreContactsIn_CsvFile \n9.ReadContactsFrom_CsvFile \n10.Exit");
-				int choice = Convert.ToInt32(Console.ReadLine());
-				int size = addressBookDict.Count;
-				switch (choice)
-				{
-					case 1:
-						Console.Write("Enter AddressBook Name : ");
-						string book = Console.ReadLine();
-						bool check = DuplicatAddress(book);
-						if (check)
-						{
-							Console.Write("Enter AddressBook Name again : ");
-							book = Console.ReadLine();
-						}
-						MultipleAddressBook admain = new MultipleAddressBook();
-						addressBookDict.Add(book, admain);
-						Console.Clear();
-						Console.WriteLine("AddressBook_Created successfully...");
-						break;
-					case 2:
-						Console.WriteLine($"You have {size} AddressBook.");
 
-						foreach (var address in addressBookDict.Keys)
-						{
-							Console.WriteLine(address);
-						}
-						Console.Write("Enter Address_BookName : ");
-						string bookname = Console.ReadLine();
-						int ch = 0;
-						foreach (var address in addressBookDict)
-						{
-							ch++;
-							if (addressBookDict.ContainsKey(bookname))
-							{
-								Console.Clear();
-								Console.WriteLine("Opened Address_Book :-->" + bookname);
-								MainMenu(bookname);
-							}
-							else if (size == ch)
-							{
-								Console.Clear();
-								Console.WriteLine("AddressBook not present!!!!!");
-							}
-						}
-						break;
-					case 3:
-						Console.Write("Enter City or State want to Count : ");
-						string countplace = Console.ReadLine();
-						foreach (var addbook in addressBookDict.Keys)
-						{
-							Console.WriteLine("Contacts From AddressBook : " + addbook);
-							addressBookDict[addbook].CountContact(countplace);
-						}
-						break;
+        public Addressbook()
+        {
+            contactDetailsList = new List<ContactDetails>();
+            contactDetailsMap = new Dictionary<string, ContactDetails>();
+            multipleAddressBookMap = new Dictionary<string, Dictionary<string, ContactDetails>>();
+            sortedBookList = new List<ContactDetails>();
 
-					case 4:
-						Console.Write("Enter City Or State name U want To Serch : ");
-						string place = Console.ReadLine();
-						foreach (var addbook in addressBookDict.Keys)
-						{
-							Console.WriteLine("Contacts From AddressBook : " + addbook);
-							addressBookDict[addbook].SerchContact(place);
-						}
-						break;
+        }
 
-					case 5:
-						Console.WriteLine($"You have {size} AddressBook.");
-						foreach (var address in addressBookDict)
-						{
-							Console.WriteLine(address.Key);
-						}
-						Console.Write("Enter Address_BookName  : ");
-						string name = Console.ReadLine();
+        /// <summary>
+        /// UC12: Sorted person in alphabatical order as per the city or zip or state
+        /// </summary>
+        public void SortByCityOrStateOrZip()
+        {
+            List<ContactDetails> sortedList;
+            Console.WriteLine(" Sort the contacts by City or State or Zip ");
+            Console.WriteLine("1: Entered for sorting list by City ");
+            Console.WriteLine("2: Entered for sorting list by State");
+            Console.WriteLine("3: Entered for sorting list by zip");
+            int option = Convert.ToInt32(Console.ReadLine());
+            switch (option)
+            {
+                case 1:
+                    sortedList = contactDetailsList.OrderBy(x => x.city).ToList();
+                    foreach (ContactDetails book in sortedList)
+                    {
+                        Console.WriteLine(book.ToString());
+                    }
+                    break;
+                case 2:
+                    sortedList = contactDetailsList.OrderBy(x => x.state).ToList();
+                    foreach (ContactDetails book in sortedList)
+                    {
+                        Console.WriteLine(book.ToString());
+                    }
+                    break;
+                case 3:
+                    sortedList = contactDetailsList.OrderBy(x => x.zip).ToList();
+                    foreach (ContactDetails book in sortedList)
+                    {
+                        Console.WriteLine(book.ToString());
+                    }
+                    break;
+            }
 
-						int signal = 0;
-						Console.Clear();
-						foreach (var address in addressBookDict)
-						{
-							signal++;
-							if (addressBookDict.Remove(name))
-							{
-								Console.Clear();
-								Console.WriteLine($"Address_Book {name} Deleted...");
-								break;
-							}
-							else if (size == signal)
-							{
-								Console.Clear();
-								Console.WriteLine("AddressBook not present!!!!!");
-							}
-						}
-						break;
-					case 6:
-						Console.WriteLine($"You have {size} AddressBook.");
+        }
+        public List<ContactDetails> AddDetails(string addressBook, string firstName, string LastName, string address, string city, string state, int zip, long phoneNumber, string email)
+        {
+            ContactDetails contactDetails = new ContactDetails(addressBook, firstName, LastName, address, city, state, zip, phoneNumber, email);
+            contactDetailsList.Add(contactDetails);
 
-						foreach (var address in addressBookDict.Keys)
-						{
-							Console.WriteLine(address);
-						}
-						Console.Write("Enter Address_BookName : ");
-						string addressBokk = Console.ReadLine();
-						addressBookDict[addressBokk].writeInTxtFile();
-						break;
-					case 7:
-						Console.WriteLine($"You have {size} AddressBook.");
+            return contactDetailsList;
 
-						foreach (var address in addressBookDict.Keys)
-						{
-							Console.WriteLine(address);
-						}
-						Console.Write("Enter Address_BookName : ");
-						string readContacts = Console.ReadLine();
-						addressBookDict[readContacts].readFromTxtFile();
-						break;
-					case 8:
-						Console.WriteLine($"You have {size} AddressBook.");
+        }
+        /// <summary>
+        /// UC11: Sort the contactlist in alphabetical order of first name
+        /// </summary>
+        public List<ContactDetails> SortByFirstName()
+        {
+            Console.WriteLine(" Sort the contacts alphabetically ");
+            sortedBookList = contactDetailsList.OrderBy(x => x.firstName).ToList();
+            foreach (ContactDetails book in sortedBookList)
+            {
+                Console.WriteLine(book.ToString());
+            }
+            return sortedBookList;
 
-						foreach (var address in addressBookDict.Keys)
-						{
-							Console.WriteLine(address);
-						}
-						Console.Write("Enter Address_BookName : ");
-						string writeInCsv = Console.ReadLine();
-						addressBookDict[writeInCsv].writeInCsvFile();
-						break;
-					case 9:
-						Console.WriteLine($"You have {size} AddressBook.");
+        }
 
-						foreach (var address in addressBookDict.Keys)
-						{
-							Console.WriteLine(address);
-						}
-						Console.Write("Enter Address_BookName : ");
-						string readContact = Console.ReadLine();
-						addressBookDict[readContact].readFromCsvFile();
-						break;
-					case 10:
-						flag = false;
-						break;
-					default:
-						Console.WriteLine("Invalid Option...");
-						break;
-				}
-			}
-		}
-		public static bool DuplicatAddress(string bookName)
-		{
-			bool check = false;
-			foreach (var address in addressBookDict)
-			{
 
-				if (addressBookDict.ContainsKey(bookName))
-				{
-					check = true;
-					Console.Clear();
-					Console.WriteLine($"AddressBook-> {bookName} <-alerady presented pls Enter Diff. Name");
-					break;
-				}
-			}
-			return check;
-		}
-		public static void addUser(MultipleAddressBook MultAddObj)
-		{
-			Console.Write("Enter FirstName: ");
-			string firstName = Console.ReadLine();
-			Console.Write("Enter LastName: ");
-			string lastName = Console.ReadLine();
-			Console.Write("Enter Address : ");
-			string address = Console.ReadLine();
-			Console.Write("Enter City : ");
-			string city = Console.ReadLine();
-			Console.Write("Enter State : ");
-			string state = Console.ReadLine();
-			Console.Write("Enter zip : ");
-			string zip = Console.ReadLine();
-			Console.Write("Enter Contact No: ");
-			string contact = Console.ReadLine();
-			Console.Write("Enter Email: ");
-			string email = Console.ReadLine();
-			MultAddObj.AddContact(firstName, lastName, address, city, state, zip, contact, email);
+        public void AddressBook(string addressBook)
+        {
+            multipleAddressBookMap.Add(addressBook, contactDetailsMap);
+        }
 
-		}
-		public static void MainMenu(string bookname)
-		{
 
-			bool flag = true;
-			while (flag)
-			{
-				Console.WriteLine("******WELCOME TO ADDRESS BOOK******");
-				Console.WriteLine("1.Add_Contact \n2.Display_Contact \n3.Delet_Contact \n4.Update_Contact \n5.Serch_FromAllContact \n6.Count_Contacts\n7.Sort_Contacts\n8.Exit");
-				Console.WriteLine("Enter Your Choice:");
-				int input = Convert.ToInt32(Console.ReadLine());
-				switch (input)
-				{
-					case 1:
-						Console.Clear();
-						addUser(addressBookDict[bookname]);
-						Console.WriteLine("Details Added Successfully. \n");
-						break;
-					case 2:
-						Console.Clear();
-						addressBookDict[bookname].Display();
-						break;
-					case 3:
-						Console.Write("Enter FirstName U want to Delet : ");
-						string deletName = Console.ReadLine();
-						addressBookDict[bookname].DeletContact(deletName);
-						break;
-					case 4:
-						Console.WriteLine("Enter FirstName U want To Update");
-						string fname = Console.ReadLine();
-						addressBookDict[bookname].EditContact(fname);
-						break;
-					case 5:
-						Console.Write("Enter City Or State name U want To Serch : ");
-						string place = Console.ReadLine();
-						foreach (var addbook in addressBookDict.Keys)
-						{
-							addressBookDict[addbook].SerchContact(place);
-						}
-						break;
-					case 6:
-						Console.Write("Enter City or State want to Count : ");
-						string countplace = Console.ReadLine();
-						foreach (var addbook in addressBookDict.Keys)
-						{
-							Console.WriteLine("Contacts From AddressBook : " + addbook);
-							addressBookDict[addbook].CountContact(countplace);
-						}
-						break;
-					case 7:
 
-						Console.WriteLine("Chooose option TO Sort Contacts by \n1. FirstName \n2. City \n3. State \n4. zip");
-						int option = Convert.ToInt32(Console.ReadLine());
-						Console.WriteLine("Alphabetically_Sorted_List");
-						switch (option)
-						{
-							case 1:
-								addressBookDict[bookname].SortAlphabetically(1);
-								break;
-							case 2:
-								addressBookDict[bookname].SortAlphabetically(2);
-								break;
-							case 3:
-								addressBookDict[bookname].SortAlphabetically(3);
-								break;
-							case 4:
-								addressBookDict[bookname].SortAlphabetically(4);
-								break;
-							default:
-								Console.WriteLine("Invalid option....");
-								break;
-						}
-						break;
-					case 8:
-						flag = false;
-						break;
-					default:
-						Console.WriteLine("Invalid option ???");
-						break;
-				}
-			}
+        /// <summary>
+        /// UC8: Ability to search person from the contactlist
+        /// UC9: Ability to view person from the contactlist
+        /// </summary>
+        /// <returns></returns>
+        public Dictionary<string, ContactDetails> Search()
+        {
+            Console.WriteLine(" Enter state ");
+            string state = Console.ReadLine();
+            var stateCheck = contactDetailsList.FindAll(x => x.state == state);
+            Console.WriteLine(" Enter city ");
+            string city = Console.ReadLine();
+            var cityCheck = stateCheck.FindAll(x => x.city == city);
+            Console.WriteLine(" Find Person ");
+            string firstName = Console.ReadLine();
+            var person = cityCheck.Where(x => x.firstName == firstName).FirstOrDefault();
+            if (person != null)
+            {
+                Console.WriteLine(firstName + " is  in " + city);
+            }
+            else
+            {
+                Console.WriteLine(firstName + " is not  in " + city);
+            }
+            Dictionary<string, ContactDetails> detailCity = new Dictionary<string, ContactDetails>();
+            Dictionary<string, ContactDetails> detailState = new Dictionary<string, ContactDetails>();
+            detailCity.Add(city, person);
+            detailState.Add(state, person);
+            foreach (KeyValuePair<string, ContactDetails> i in detailCity)
+            {
+                Console.WriteLine("City: {0}  {1}", i.Key, i.Value.ToString());
+            }
 
-		}
-	}
+            foreach (KeyValuePair<string, ContactDetails> i in detailState)
+            {
+                Console.WriteLine("State: {0}  {1}", i.Key, i.Value.ToString());
+            }
+
+            Console.WriteLine(detailCity.Count());
+            return detailCity;
+        }
+        /// <summary>
+        /// UC10: Ability to count the person from the same state
+        /// </summary>
+        public void Count()
+        {
+            Console.WriteLine(" Enter state ");
+            string state = Console.ReadLine();
+            var stateCheck = contactDetailsList.FindAll(x => x.state == state);
+            Console.WriteLine(" No of contacts from the state: " + state + " are " + stateCheck.Count);
+        }
+        public void ComputeDetails()
+        {
+            foreach (ContactDetails book in contactDetailsList)
+            {
+                Console.WriteLine(book.ToString());
+            }
+        }
+        /// <summary>
+        /// UC13:Ability to read file using file I/O
+        /// </summary>
+        public void ReadAFile()
+        {
+            string InputFile = @"C:\Users\GURPREET SINGH\Desktop\RFP\AdressBookCollection\AddressBookCollection\Files\AddressBookDay20.txt";
+            using (StreamReader read = File.OpenText(InputFile))
+            {
+                string s = " ";
+                while ((s = read.ReadLine()) != null)
+                {
+                    Console.WriteLine(s);
+                }
+                read.Close();
+            }
+        }
+        /// <summary>
+        /// UC13:Ability to write file using file I/O
+        /// </summary>
+        public void WriteAFile()
+        {
+            string InputFile = @"C:\Users\GURPREET SINGH\Desktop\RFP\AdressBookCollection\AddressBookCollection\Files\AddContactDetails.txt";
+            using (StreamWriter write = File.AppendText(InputFile))
+            {
+                write.WriteLine("This table contains student informaton in sorted manner");
+                foreach (ContactDetails printInText in sortedBookList)
+                {
+                    write.WriteLine(printInText.ToString());
+                }
+                write.Close();
+                Console.WriteLine(File.ReadAllText(InputFile));
+            }
+
+
+        }
+        /// <summary>
+        /// UC14: Ability to read and write the csv file
+        /// </summary>
+        public void CsvSerialization()
+        {
+
+            string CsvFilePath = @"C:\Users\GURPREET SINGH\Desktop\RFP\AdressBookCollection\AddressBookCollection\Files\FileData.csv";
+
+            // writing csv file
+            using (var writer = new StreamWriter(CsvFilePath))
+            using (var csvExport = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                List<ContactDetails> sortedlist = SortByFirstName();
+                csvExport.WriteRecords(sortedlist);
+            }
+        }
+        public void CsvDeSerialization()
+        {
+            string CsvFilePath = @"C:\Users\GURPREET SINGH\Desktop\RFP\AdressBookCollection\AddressBookCollection\Files\FileData.csv";
+
+            //reading csv file
+            using (TextReader reader = new StreamReader(CsvFilePath))
+            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            {
+                var records = csv.GetRecords<ContactDetails>().ToList();
+                Console.WriteLine("Read data successfully from MultipleAddressBook.csv, here are codes ");
+
+                foreach (ContactDetails contactDetails in records)
+                {
+                    Console.WriteLine("\t" + contactDetails.firstName);
+                }
+            }
+        }
+        /// <summary>
+        /// UC15: Ability to read and write JSON file
+        /// </summary>
+        public void JsonSerialize()
+        {
+
+            string JsonFilePath = @"C:\Users\GURPREET SINGH\Desktop\RFP\AdressBookCollection\AddressBookCollection\Files\FileData.json";
+
+            string result = JsonConvert.SerializeObject(contactDetailsList);
+
+            File.WriteAllText(JsonFilePath, result);
+        }
+
+        public void JsonDeSerialize()
+        {
+            string JsonFilePath = @"C:\Users\GURPREET SINGH\Desktop\RFP\AdressBookCollection\AddressBookCollection\Files\FileData.json";
+            if (File.Exists(JsonFilePath))
+            {
+                string Jsondata = File.ReadAllText(JsonFilePath);
+                List<ContactDetails> result = JsonConvert.DeserializeObject<List<ContactDetails>>(Jsondata);
+                if (result.Count != 0)
+                {
+                    foreach (ContactDetails contactDetails in result)
+                    {
+                        Console.WriteLine(contactDetails.toString());
+                    }
+                }
+            }
+        }
+    }
 }
